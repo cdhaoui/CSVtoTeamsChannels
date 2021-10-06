@@ -1,0 +1,20 @@
+$data = Import-Csv C:\Users\You\Documents\CSVtoTeamsChannels\channels.csv
+foreach ($d in $data) {
+	Try {
+	$teamGroupId = (Get-Team -DisplayName $d.TeamName).GroupId
+	Try {
+	Add-TeamChannelUser -GroupId $teamGroupId -DisplayName $d.ChannelName -User $d.Email
+	$d.Email + " added to Channel " + $d.ChannelName + " in Team " + $d.TeamName
+	}
+	Catch
+	{
+		$channelId = (New-TeamChannel -GroupId $teamGroupId -DisplayName $d.ChannelName -MembershipType Private).Id
+		Add-TeamChannelUser -GroupId $teamGroupId -DisplayName $d.ChannelName -User $d.Email
+		$d.Email + " added to Channel " + $d.ChannelName + " in Team " + $d.TeamName
+	}
+}
+Catch
+{
+"Failed to add " + $d.Email + " to Channel " + $d.ChannelName + " in Team " + $d.TeamName
+}
+}
